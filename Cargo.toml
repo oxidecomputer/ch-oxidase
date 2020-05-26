@@ -1,0 +1,17 @@
+[package]
+name = "ch-oxidase"
+version = "0.0.1"
+authors = ["Allison Randal <allison@oxide.computer>"]
+edition = "2018"
+
+[dependencies]
+clap = "~2.33"
+bhyve-api = { path = "../bhyve-api" }
+vm-memory = { version = "0.2.0", features = ["backend-mmap"] }
+
+[patch.crates-io]
+vmm-sys-util = { path = "../../rust-vmm/vmm-sys-util" }
+libc = { path = '../../rust-lang/libc' }
+
+[patch.'https://github.com/rust-vmm/vmm-sys-util']
+vmm-sys-util = { path = "../../rust-vmm/vmm-sys-util" }
