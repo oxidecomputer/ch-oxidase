@@ -234,7 +234,6 @@ impl Vm {
         system: VMMSystem,
         exit_evt: EventFd,
         reset_evt: EventFd,
-        vmm_path: PathBuf,
     ) -> Result<Self> {
         config
             .lock()
@@ -248,7 +247,6 @@ impl Vm {
             memory_manager.clone(),
             &exit_evt,
             &reset_evt,
-            vmm_path,
         )
         .map_err(Error::DeviceManager)?;
 
@@ -293,7 +291,6 @@ impl Vm {
         config: Arc<Mutex<VmConfig>>,
         exit_evt: EventFd,
         reset_evt: EventFd,
-        vmm_path: PathBuf,
     ) -> Result<Self> {
         let (system, fd) = Vm::bhyve_new()?;
         let memory_manager = MemoryManager::new(
@@ -310,7 +307,6 @@ impl Vm {
             system,
             exit_evt,
             reset_evt,
-            vmm_path,
         )?;
 
         // The device manager must create the devices from here as it is part

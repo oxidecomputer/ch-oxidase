@@ -175,12 +175,10 @@ pub fn start_vmm_thread(
     // a thread as Rust does not put the child threads in the same thread group which prevents the
     // link from being followed as per PTRACE_MODE_READ_FSCREDS (see proc(5) and ptrace(2)). The
     // alternative is to run always with CAP_SYS_PTRACE but that is not a good idea.
-    let self_path = format!("/proc/{}/exe", std::process::id());
-    let vmm_path = std::fs::read_link(PathBuf::from(self_path)).map_err(Error::ExePathReadLink)?;
     let thread = thread::Builder::new()
         .name("vmm".to_string())
         .spawn(move || {
-            let mut vmm = Vmm::new(vmm_version.to_string(), api_event, vmm_path)?;
+            let mut vmm = Vmm::new(vmm_version.to_string(), api_event)?;
 
             vmm.control_loop(Arc::new(api_receiver))
         })
@@ -200,11 +198,10 @@ pub struct Vmm {
     version: String,
     vm: Option<Vm>,
     vm_config: Option<Arc<Mutex<VmConfig>>>,
-    vmm_path: PathBuf,
 }
 
 impl Vmm {
-    fn new(vmm_version: String, api_evt: EventFd, vmm_path: PathBuf) -> Result<Self> {
+    fn new(vmm_version: String, api_evt: EventFd) -> Result<Self> {
         let mut epoll = EpollContext::new().map_err(Error::Epoll)?;
         let exit_evt = EventFd::new(EFD_NONBLOCK).map_err(Error::EventFdCreate)?;
         let reset_evt = EventFd::new(EFD_NONBLOCK).map_err(Error::EventFdCreate)?;
@@ -233,7 +230,6 @@ impl Vmm {
             version: vmm_version,
             vm: None,
             vm_config: None,
-            vmm_path,
         })
     }
 
@@ -248,7 +244,6 @@ impl Vmm {
                     Arc::clone(vm_config),
                     exit_evt,
                     reset_evt,
-                    self.vmm_path.clone(),
                 )?;
                 self.vm = Some(vm);
             }
@@ -293,7 +288,7 @@ impl Vmm {
             if self.reset_evt.read().is_ok() {
                 warn!("Spurious second reset event received. Ignoring.");
             }
-            self.vm = Some(Vm::new(config, exit_evt, reset_evt, self.vmm_path.clone())?);
+            self.vm = Some(Vm::new(config, exit_evt, reset_evt)?);
         }
 
         // Then we start the new VM.

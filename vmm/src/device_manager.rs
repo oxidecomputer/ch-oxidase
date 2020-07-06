@@ -536,9 +536,6 @@ pub struct DeviceManager {
     // which prevents cyclic dependencies.
     bus_devices: Vec<Arc<Mutex<dyn BusDevice>>>,
 
-    // The path to the VMM for self spawning
-    vmm_path: PathBuf,
-
     // Counter to keep track of the consumed device IDs.
     device_id_cnt: Wrapping<usize>,
 
@@ -587,7 +584,6 @@ impl DeviceManager {
         memory_manager: Arc<Mutex<MemoryManager>>,
         _exit_evt: &EventFd,
         reset_evt: &EventFd,
-        vmm_path: PathBuf,
     ) -> DeviceManagerResult<Arc<Mutex<Self>>> {
         let address_manager = Arc::new(AddressManager {
             allocator: memory_manager.lock().unwrap().allocator(),
@@ -627,7 +623,6 @@ impl DeviceManager {
             memory_manager,
             virtio_devices: Vec::new(),
             bus_devices: Vec::new(),
-            vmm_path,
             device_id_cnt: Wrapping(0),
             #[cfg(feature = "pci_support")]
             pci_bus: None,
