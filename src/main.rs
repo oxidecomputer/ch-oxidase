@@ -76,6 +76,9 @@ fn create_app<'a, 'b>(
     api_server_path: &'a str,
 ) -> App<'a, 'b> {
     App::new("cloud-hypervisor")
+        // 'BUILT_VERSION' is set by the build script 'build.rs' at
+        // compile time
+        .version(env!("BUILT_VERSION"))
         .author(crate_authors!())
         .about("Launch a cloud-hypervisor VMM.")
         .group(ArgGroup::with_name("vm-config").multiple(true))
@@ -304,18 +307,18 @@ fn main() {
     let pid = unsafe { libc::getpid() };
     let uid = unsafe { libc::getuid() };
 
-    let mut api_server_path = format! {"/run/user/{}/cloud-hypervisor.{}", uid, pid};
-    if uid == 0 {
+    let mut api_server_path = format! {"/var/run/cloud-hypervisor.{}", pid};
+//    if uid == 0 {
         // If we're running as root, we try to get the real user ID if we've been sudo'ed
-        // or else create our socket directly under /run.
-        let key = "SUDO_UID";
-        match env::var(key) {
-            Ok(sudo_uid) => {
-                api_server_path = format! {"/run/user/{}/cloud-hypervisor.{}", sudo_uid, pid}
-            }
-            Err(_) => api_server_path = format! {"/run/cloud-hypervisor.{}", pid},
-        }
-    }
+        // or else create our socket directly under /var/run.
+//        let key = "SUDO_UID";
+//        match env::var(key) {
+//            Ok(sudo_uid) => {
+//                api_server_path = format! {"/var/run/user/{}/cloud-hypervisor.{}", sudo_uid, pid}
+//            }
+//            Err(_) => api_server_path = format! {"/var/run/cloud-hypervisor.{}", pid},
+//        }
+//    }
 
     let (default_vcpus, default_memory, default_rng) = prepare_default_values();
 
