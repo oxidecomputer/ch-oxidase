@@ -13,7 +13,7 @@ use std::{mem, result};
 
 use super::gdt::{gdt_entry};
 use super::BootProtocol;
-use bhyve_api::vm::{VirtualMachine, vm_reg_name};
+use bhyve_api::vm::{VirtualMachine, vm_reg_name, vm_cap_type};
 use layout::{BOOT_GDT_START, BOOT_IDT_START, PDE_START, PDPTE_START, PML4_START, PVH_INFO_START};
 use vm_memory::{Address, Bytes, GuestMemory, GuestMemoryError, GuestMemoryMmap};
 
@@ -62,6 +62,9 @@ pub fn setup_regs(
     boot_si: u64,
     boot_prot: BootProtocol,
 ) -> Result<()> {
+    vm.vcpu_reset(vcpu_id).map_err(Error::SetBaseRegisters)?;
+    vm.set_x2apic_state(vcpu_id, true).map_err(Error::SetBaseRegisters)?;
+    vm.set_capability(vcpu_id, vm_cap_type::VM_CAP_UNRESTRICTED_GUEST, 1).map_err(Error::SetBaseRegisters)?;
     match boot_prot {
         // Configure regs as required by PVH boot protocol.
         BootProtocol::PvhBoot => {

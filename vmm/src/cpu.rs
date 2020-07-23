@@ -115,6 +115,15 @@ pub enum Error {
     /// Asking for more vCPUs that we can have
     DesiredVCPUCountExceedsMax,
 
+    /// Failed to initialize VCPU.
+    VcpuReinit(bhyve_api::Error),
+
+    /// Failed to set VCPU topology.
+    VcpuSetTopology(bhyve_api::Error),
+
+    /// Failed to activate VCPU.
+    VcpuActivate(bhyve_api::Error),
+
     /// Failed to get VCPU MP state.
     VcpuGetMpState(bhyve_api::Error),
 
@@ -321,6 +330,15 @@ impl Vcpu {
                         ioapic.lock().unwrap().end_of_interrupt(vector as u8);
                     }
                     Ok(true)
+                }
+                VmExit::Bogus => {
+                    // Bogus exit, should simply continue
+                    Ok(true)
+                }
+                VmExit::Svm(exitcode, info1, info2) => {
+                    // SVM exit, cannot be handled
+                    error!("SVM exit reason: exitcode {:?} info1 {:?} info2 {:?}", exitcode, info1, info2);
+                    Err(Error::VcpuUnhandledExit)
                 }
 //                VmExit::Shutdown => {
 //                    // Triple fault to trigger a reboot
@@ -675,8 +693,11 @@ impl CpuManager {
         let vcpu_thread_barrier = Arc::new(Barrier::new(
             (desired_vcpus - self.present_vcpus() + 1) as usize,
         ));
+        self.fd.reinit().map_err(Error::VcpuReinit)?;
+        self.fd.set_topology(1, 1, desired_vcpus as u16).map_err(Error::VcpuSetTopology)?;
 
         for cpu_id in self.present_vcpus()..desired_vcpus {
+            self.fd.activate_vcpu(cpu_id as i32).map_err(Error::VcpuActivate)?;
             self.start_vcpu(
                 cpu_id,
                 creation_ts,
