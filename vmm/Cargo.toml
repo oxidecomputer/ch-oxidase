@@ -22,7 +22,7 @@ arch = { path = "../arch" }
 devices = { path = "../../bhyve-oxidase/devices" }
 epoll = ">=4.0.1"
 lazy_static = "1.4.0"
-libc = "0.2.69"
+libc = "0.2.74"
 log = "0.4.8"
 micro_http = { git = "https://github.com/firecracker-microvm/micro-http", branch = "master" }
 pci = {path = "../../bhyve-oxidase/pci", optional = true}
@@ -36,16 +36,9 @@ vm-device = { path = "../../bhyve-oxidase/vm-device" }
 vm-memory = { version = "0.2.0", features = ["backend-mmap", "backend-atomic"] }
 vm-migration = { path = "../../bhyve-oxidase/vm-migration" }
 vm-virtio = { path = "../../bhyve-oxidase/vm-virtio" }
-vmm-sys-util = { version = ">=0.5.0", features = ["with-serde"] }
+vmm-sys-util = { git = "https://github.com/oxidecomputer/vmm-sys-util", branch = "add-illumos-target", features = ["with-serde"] }
 signal-hook = "0.1.14"
 tempfile = "3.1.0"
-
-[patch.crates-io]
-vmm-sys-util = { path = "../../../rust-vmm/vmm-sys-util" }
-libc = { path = '../../../rust-lang/libc' }
-
-[patch.'https://github.com/rust-vmm/vmm-sys-util']
-vmm-sys-util = { path = "../../../rust-vmm/vmm-sys-util" }
 
 [dependencies.linux-loader]
 git = "https://github.com/rust-vmm/linux-loader"
