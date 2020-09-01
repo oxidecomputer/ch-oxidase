@@ -10,9 +10,9 @@ default = []
 byteorder = "1.3.4"
 libc = "0.2.69"
 vm-memory = { version = "0.2.0", features = ["backend-mmap"] }
-bhyve-api = { path = "../../bhyve-api" }
+bhyve-api = { git = "https://github.com/oxidecomputer/bhyve-api" }
 
-acpi_tables = { path = "../../bhyve-oxidase/acpi_tables", optional = true }
+acpi_tables = { path = "../acpi_tables", optional = true }
 arch_gen = { path = "../arch_gen" }
 
 [dependencies.linux-loader]

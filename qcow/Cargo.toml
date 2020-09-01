@@ -14,7 +14,7 @@ libc = "0.2.74"
 log = "0.4.8"
 remain = "0.2.1"
 vmm-sys-util = { git = "https://github.com/oxidecomputer/vmm-sys-util", branch = "add-illumos-target" }
-vm-virtio = { path = "../../bhyve-oxidase/vm-virtio" }
+vm-virtio = { path = "../vm-virtio" }
 
 [dev-dependencies]
 tempfile = "3.1.0"

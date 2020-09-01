@@ -10,7 +10,7 @@ epoll = "4.1.0"
 libc = "0.2.74"
 log = { version = "0.4.8", features = ["std"] }
 serde_json = ">=1.0.9"
-bhyve-api = { path = "../bhyve-api" }
+bhyve-api = { git = "https://github.com/oxidecomputer/bhyve-api" }
 vm-memory = { version = "0.2.0", features = ["backend-mmap"] }
 vmm = { path = "vmm" }
 vmm-sys-util = { version = ">=0.5.0", features = ["with-serde"] }
