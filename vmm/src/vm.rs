@@ -35,6 +35,7 @@ use bhyve_api::system::VMMSystem;
 use bhyve_api::vm::*;
 use linux_loader::cmdline::Cmdline;
 use linux_loader::loader::elf::Error::InvalidElfMagicNumber;
+use linux_loader::loader::elf::PvhBootCapability::PvhEntryPresent;
 use linux_loader::loader::KernelLoader;
 use signal_hook::{iterator::Signals, SIGINT, SIGTERM, SIGWINCH};
 use std::convert::TryInto;
@@ -432,7 +433,7 @@ impl Vm {
                 let entry_point_addr: GuestAddress;
                 let boot_prot: BootProtocol;
 
-                if let Some(pvh_entry_addr) = entry_addr.pvh_entry_addr {
+                if let PvhEntryPresent(pvh_entry_addr) = entry_addr.pvh_boot_cap {
                     // Use the PVH kernel entry point to boot the guest
                     entry_point_addr = pvh_entry_addr;
                     boot_prot = BootProtocol::PvhBoot;
