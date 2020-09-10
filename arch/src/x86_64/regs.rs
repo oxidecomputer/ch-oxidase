@@ -170,7 +170,7 @@ fn configure_segments_and_sregs(
             vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_CR0, X86_CR0_PE).map_err(Error::SetBaseRegisters)?;
             vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_CR4, 0).map_err(Error::SetBaseRegisters)?;
 
-            vm.set_desc(vcpu_id, vm_reg_name::VM_REG_GUEST_CS, 0, 0xffffffff, 0xa09b).map_err(Error::SetStatusRegisters)?;
+            vm.set_desc(vcpu_id, vm_reg_name::VM_REG_GUEST_CS, 0, 0xffffffff, 0xc09b).map_err(Error::SetStatusRegisters)?;
             let data_base = 0;
             let data_limit = 0xffffffff;
             let data_flags = 0xc093;
@@ -180,6 +180,17 @@ fn configure_segments_and_sregs(
             vm.set_desc(vcpu_id, vm_reg_name::VM_REG_GUEST_GS, data_base, data_limit, data_flags).map_err(Error::SetStatusRegisters)?;
             vm.set_desc(vcpu_id, vm_reg_name::VM_REG_GUEST_SS, data_base, data_limit, data_flags).map_err(Error::SetStatusRegisters)?;
             vm.set_desc(vcpu_id, vm_reg_name::VM_REG_GUEST_TR, 0, 0x67, 0x008b).map_err(Error::SetStatusRegisters)?;
+
+            // Set the segment selectors.  This is largely cosmetic, since the actual contents of
+            // the segment register have been loaded, but it is good to be completely correct.
+            let code_sel = 1 << 3;
+            let data_sel = 2 << 3;
+            vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_CS, code_sel).map_err(Error::SetBaseRegisters)?;
+            vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_DS, data_sel).map_err(Error::SetBaseRegisters)?;
+            vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_ES, data_sel).map_err(Error::SetBaseRegisters)?;
+            vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_FS, data_sel).map_err(Error::SetBaseRegisters)?;
+            vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_GS, data_sel).map_err(Error::SetBaseRegisters)?;
+            vm.set_register(vcpu_id, vm_reg_name::VM_REG_GUEST_SS, data_sel).map_err(Error::SetBaseRegisters)?;
         }
         BootProtocol::LinuxBoot => {
             /* 64-bit protected mode */
