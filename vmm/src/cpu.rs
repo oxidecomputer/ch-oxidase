@@ -693,7 +693,6 @@ impl CpuManager {
         let vcpu_thread_barrier = Arc::new(Barrier::new(
             (desired_vcpus - self.present_vcpus() + 1) as usize,
         ));
-        self.fd.reinit().map_err(Error::VcpuReinit)?;
         self.fd.set_topology(1, 1, desired_vcpus as u16).map_err(Error::VcpuSetTopology)?;
 
         for cpu_id in self.present_vcpus()..desired_vcpus {
